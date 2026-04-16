@@ -132,7 +132,7 @@ exports.getProfileById = (req, res) => {
             return res.status(200).json({ status: 'success', data: profile });
         } catch (err) {
             console.error(err);
-            return res.status(500).json({ status: 'error', message: 'Internal server error' });
+            return res.status(500).json({ status: 'error', message: 'Internal server error'});
         }
     })();
 };

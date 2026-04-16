@@ -6,14 +6,19 @@ const ProfileSchema = new mongoose.Schema(
       required: true, 
       unique: true 
     },
-    name: { type: String, 
+    name: { 
+      type: String, 
       required: true, 
       index: true 
     },
-    gender: { type: String,
+    gender: { 
+      type: String,
+      required:true,
        default: null 
       },
-    gender_probability: { type: Number,
+    gender_probability: { 
+      type: Number,
+      required: true,
        default: null 
       },
 

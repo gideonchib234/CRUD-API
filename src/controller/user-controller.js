@@ -108,7 +108,8 @@ exports.getAllProfiles = (req, res) => {
             if (age_group) filter.age_group = new RegExp(`^${age_group}$`, 'i');
 
             const items = await Profile.find(filter).lean();
-            const data = items.map(({ id, name, gender, age, age_group, country_id }) => ({ id, name, gender, age, age_group, country_id }));
+            const data = items.map(({ id, name, gender, age, age_group, country_id }) => ({ id, name, gender,
+                 age, age_group, country_id }));
             return res.status(200).json({ status: 'success', count: data.length, data });
         } catch (err) {
             console.error(err);

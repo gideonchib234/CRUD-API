@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const fetch = global.fetch || require('node-fetch');
-const { v7: uuidv7 } = require('uuid');
+const uuid = require('uuid');
 const store = require('../services/profileStore');
 
 function isNonEmptyString(v) {
@@ -69,8 +69,10 @@ router.post('/profiles', async (req, res) => {
 
     const topCountry = nationalize.country.reduce((best, cur) => (cur.probability > (best.probability || 0) ? cur : best), {});
 
+    const generateId = (uuid.v7 || uuid.v4).bind(uuid);
+
     const profile = {
-      id: uuidv7(),
+      id: generateId(),
       name: String(name).toLowerCase(),
       gender: genderize.gender,
       gender_probability: Number(genderize.probability),

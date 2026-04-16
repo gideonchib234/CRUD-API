@@ -1,18 +1,19 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const MONGO_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/profiles-db';
+const MONGO_URI = process.env.MONGO_URI || '';
 
 mongoose.set('strictQuery', false);
 
-async function connect() {
+const connectDb = async () => {
   try {
-    await mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    await mongoose.connect(MONGO_URI);
     console.log('Connected to MongoDB');
   } catch (err) {
     console.error('MongoDB connection error:', err);
+    process.exit(1);
     // Do not exit; app can still run for development without DB
   }
 }
 
-module.exports = { connect, mongoose };
+module.exports = { connectDb, mongoose };

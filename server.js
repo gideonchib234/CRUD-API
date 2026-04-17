@@ -10,7 +10,7 @@ const { connectDb } = require('./src/Database/db');
 connectDb();
 
 app.get('/', (req, res) => {
-  res.send('server is running');
+  res.send('Welcome to the CRUD APIServer!Server is running on http://localhost:' + PORT);
 });
 
 

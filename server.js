@@ -9,6 +9,11 @@ const { connectDb } = require('./src/Database/db');
 
 connectDb();
 
+app.get('/', (req, res) => {
+  res.send('server is running');
+});
+
+
 app.use(express.json());
 app.use(cors({ origin: '*' }));
 app.use(morgan('dev'));

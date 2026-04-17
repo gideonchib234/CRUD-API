@@ -156,4 +156,24 @@ exports.deleteProfile = (req, res) => {
     })();
 };
 
+exports.deleteProfileById = (req, res) => {
+    (async () => {
+        try {
+            if (mongoose.connection.readyState !== 1) {
+                return res.status(503).json({ status: 'error', message: 'Database not connected' });
+            }
+            const id = req.params.id || req.body.id;
+            if (!id) return res.status(400).json({ status: 'error', message: 'Missing id' });
+
+            const deleted = await Profile.findOneAndDelete({ id });
+            if (!deleted) return res.status(404).json({ status: 'error', message: 'Profile not found' });
+
+            return res.status(200).json({ status: 'success', data: deleted.toObject() });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).json({ status: 'error', message: 'Internal server error' });
+        }
+    })();
+}
+
 // exported via `exports.*` above

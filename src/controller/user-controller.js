@@ -120,40 +120,77 @@ exports.getAllProfiles = (req, res) => {
 
 /**
  * GET /api/profiles/:id
+ * Retrieve a single profile by id
  */
-exports.getProfileById = (req, res) => {
-    (async () => {
-        try {
-            if (mongoose.connection.readyState !== 1) {
-                return res.status(503).json({ status: 'error', message: 'Database not connected' });
-            }
-            const profile = await Profile.findOne({ id: req.params.id }).lean();
-            if (!profile) return res.status(404).json({ status: 'error', message: 'Profile not found' });
-            return res.status(200).json({ status: 'success', data: profile });
-        } catch (err) {
-            console.error(err);
-            return res.status(500).json({ status: 'error', message: 'Internal server error'});
+exports.getProfileById = async (req, res) => {
+    try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({ status: 'error', message: 'Database not connected' });
         }
-    })();
+        const { id } = req.params;
+        if (!id) return res.status(400).json({ status: 'error', message: 'Missing id' });
+
+        const item = await Profile.findOne({ id }).lean();
+        if (!item) return res.status(404).json({ status: 'error', message: 'Profile not found' });
+
+        return res.status(200).json({ status: 'success', data: item });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ status: 'error', message: 'Internal server error' });
+    }
 };
 
 /**
  * DELETE /api/profiles/:id
+ * Delete a profile by id
  */
-exports.deleteProfile = (req, res) => {
-    (async () => {
-        try {
-            if (mongoose.connection.readyState !== 1) {
-                return res.status(503).json({ status: 'error', message: 'Database not connected' });
-            }
-            const result = await Profile.deleteOne({ id: req.params.id });
-            if (!result || result.deletedCount === 0) return res.status(404).json({ status: 'error', message: 'Profile not found' });
-            return res.status(204).send();
-        } catch (err) {
-            console.error(err);
-            return res.status(500).json({ status: 'error', message: 'Internal server error' });
+exports.deleteProfile = async (req, res) => {
+    try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({ status: 'error', message: 'Database not connected' });
         }
-    })();
+        const { id } = req.params;
+        if (!id) return res.status(400).json({ status: 'error', message: 'Missing id' });
+
+        const deleted = await Profile.findOneAndDelete({ id });
+        if (!deleted) return res.status(404).json({ status: 'error', message: 'Profile not found' });
+
+        return res.status(200).json({ status: 'success', message: 'Profile deleted' });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ status: 'error', message: 'Internal server error' });
+    }
+};
+
+/**
+ * PUT /api/profiles/:id
+ * Update a profile by id (partial updates allowed)
+ */
+exports.updateProfile = async (req, res) => {
+    try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({ status: 'error', message: 'Database not connected' });
+        }
+        const { id } = req.params;
+        if (!id) return res.status(400).json({ status: 'error', message: 'Missing id' });
+
+        const allowed = ['name', 'gender', 'gender_probability', 'sample_size', 'age', 'age_group', 'country_id', 'country_probability'];
+        const update = {};
+        for (const key of allowed) {
+            if (Object.prototype.hasOwnProperty.call(req.body, key)) update[key] = req.body[key];
+        }
+        if (update.name && typeof update.name === 'string') update.name = update.name.toLowerCase().trim();
+
+        if (Object.keys(update).length === 0) return res.status(400).json({ status: 'error', message: 'No updatable fields provided' });
+
+        const updated = await Profile.findOneAndUpdate({ id }, { $set: update }, { new: true }).lean();
+        if (!updated) return res.status(404).json({ status: 'error', message: 'Profile not found' });
+
+        return res.status(200).json({ status: 'success', data: updated });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ status: 'error', message: 'Internal server error' });
+    }
 };
 
 exports.deleteProfileById = (req, res) => {
@@ -175,5 +212,3 @@ exports.deleteProfileById = (req, res) => {
         }
     })();
 }
-
-// exported via `exports.*` above
